@@ -8,7 +8,7 @@ let notes = [
 
 function searchNotes(word) {
     return notes.filter((note) => {
-        return note.text.toLowerCase().includes(word);
+        return note.text.toLowerCase().includes(word.toLowerCase());
     });
 }
 
@@ -69,7 +69,7 @@ console.log(getSummary());
 
 const summaryNotes = notes;
 notes = [
-    {id: 99, test: "Test note", category: "personal"}
+    {id: 99, text: "Test note", category: "personal"}
 ];
 console.log(getSummary());
 notes = summaryNotes;
@@ -78,7 +78,7 @@ function isDuplicate(text) {
     const cleanedText = text.trim().toLowerCase();
 
     return notes.some((note) => {
-        return note.text.toLowerCase() === cleanedText;
+        return note.text.trim().toLowerCase() === cleanedText;
     });
 }
 
@@ -86,4 +86,36 @@ console.log(isDuplicate("Buy milk and bread"));
 console.log(isDuplicate("buy milk and bread"));
 console.log(isDuplicate("  Buy Milk and Bread  "));
 console.log(isDuplicate("Walk the dog"));
+
+function addNote(text, category) {
+    const cleanedText = text.trim();
+
+    if (cleanedText.length < 1 || cleanedText.length > 200) {
+        console.log("Note rejected because text must be between 1-200 characters.");
+        return false;
+    }
+
+    if (isDuplicate(cleanedText)) {
+        console.log("Note rejected because duplicate already exists.");
+        return false;
+    }
+
+    const validCategories = ["personal", "work", "study"];
+    if (!validCategories.includes(category)) {
+        console.log(`Note rejected: "${category}" is not a valid category.`);
+        return false;
+    }
+
+    const newNote = { id: notes.length + 1,text: cleanedText,category: category};
+    notes.push(newNote);
+    
+    console.log("Note added successfully!");
+    return true;
+}
+
+console.log(addNote("Buy milk and bread", "personal"));
+console.log(addNote("", "work"));
+console.log(addNote("  BUY MILK AND BREAD", "personal"));
+console.log(addNote("Go for a walk", "other"));
+console.log(addNote("Learn JavaScript functions", "study"));
 
