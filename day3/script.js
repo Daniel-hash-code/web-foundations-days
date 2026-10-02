@@ -12,6 +12,9 @@ function searchNotes(word) {
     });
 }
 
+console.log(searchNotes("javascript"));
+console.log(searchNotes("python"));
+
 function longestNote() {
     if (notes.length === 0) {
         return null;
@@ -25,6 +28,14 @@ function longestNote() {
     }
     return longest;
 }
+
+console.log(longestNote());
+
+const originalNotes = notes;
+notes = [];
+console.log(longestNote());
+notes = originalNotes;
+
 
 function countByCategory() {
     const counts = {};
@@ -40,29 +51,19 @@ function countByCategory() {
     return counts;
 }
 
-function getSummary() {
-    const counts = countByCategory();
-    const word = notes.length === 1 ? "note" : "notes";
-    
-    return `${notes.length} ${word}: ${counts.personal || 0} personal, ${counts.work || 0} work, ${counts.study || 0} study.`;
-}
-
-console.log(searchNotes("javascript"));
-console.log(searchNotes("python"));
-
-console.log(longestNote());
-
-const originalNotes = notes;
-notes = [];
-console.log(longestNote());
-notes = originalNotes;
-
 console.log(countByCategory());
 
 const savedNotes = notes;
 notes = [];
 console.log(countByCategory());
 notes = savedNotes;
+
+function getSummary() {
+    const counts = countByCategory();
+    const word = notes.length === 1 ? "note" : "notes";
+    
+    return `${notes.length} ${word}: ${counts.personal || 0} personal, ${counts.work || 0} work, ${counts.study || 0} study.`;
+}
 
 console.log(getSummary());
 
@@ -72,3 +73,17 @@ notes = [
 ];
 console.log(getSummary());
 notes = summaryNotes;
+
+function isDuplicate(text) {
+    const cleanedText = text.trim().toLowerCase();
+
+    return notes.some((note) => {
+        return note.text.toLowerCase() === cleanedText;
+    });
+}
+
+console.log(isDuplicate("Buy milk and bread"));
+console.log(isDuplicate("buy milk and bread"));
+console.log(isDuplicate("  Buy Milk and Bread  "));
+console.log(isDuplicate("Walk the dog"));
+
