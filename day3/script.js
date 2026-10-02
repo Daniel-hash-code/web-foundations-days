@@ -40,6 +40,13 @@ function countByCategory() {
     return counts;
 }
 
+function getSummary() {
+    const counts = countByCategory();
+    const word = notes.length === 1 ? "note" : "notes";
+    
+    return `${notes.length} ${word}: ${counts.personal || 0} personal, ${counts.work || 0} work, ${counts.study || 0} study.`;
+}
+
 console.log(searchNotes("javascript"));
 console.log(searchNotes("python"));
 
@@ -56,3 +63,12 @@ const savedNotes = notes;
 notes = [];
 console.log(countByCategory());
 notes = savedNotes;
+
+console.log(getSummary());
+
+const summaryNotes = notes;
+notes = [
+    {id: 99, test: "Test note", category: "personal"}
+];
+console.log(getSummary());
+notes = summaryNotes;
