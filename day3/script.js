@@ -5,3 +5,12 @@ let notes = [
     { id: 4, text: "Revise Javascript arrays", category: "study"},
     { id: 5, text: "Call mum", category: "personal"}
 ];
+
+function searchNotes(word) {
+    return notes.filter((note) => {
+        return note.text.toLowerCase().includes(word);
+    });
+}
+
+console.log(searchNotes("javascript"));
+
