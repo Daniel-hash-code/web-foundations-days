@@ -38,17 +38,16 @@ notes = originalNotes;
 
 
 function countByCategory() {
-    const counts = {};
-
-    for (const note of notes) {
-        const category = note.category;
-        if (counts[category]) {
-            counts[category]++;
-        } else {
-            counts[category] = 1;
-        }
-    }
-    return counts;
+    const counts = {
+            personal: 0,
+            work: 0,
+            study: 0
+        };
+    
+    return notes.reduce((counts, note) => {
+        counts[note.category]++;
+        return counts;
+    }, counts);
 }
 
 console.log(countByCategory()); //Expected output: {personal: 2, work: 1, study: 2}
