@@ -12,8 +12,8 @@ function searchNotes(word) {
     });
 }
 
-console.log(searchNotes("javascript"));
-console.log(searchNotes("python"));
+console.log(searchNotes("Javascript")); //Expected output: [{id:4, text: "Revise Javascript arrays", category: "study"}]
+console.log(searchNotes("python")); //Expected output: []
 
 function longestNote() {
     if (notes.length === 0) {
@@ -29,11 +29,11 @@ function longestNote() {
     return longest;
 }
 
-console.log(longestNote());
+console.log(longestNote()); //Expected output: {id: 3, text: "Email the project report to Grace", category: "work"}
 
 const originalNotes = notes;
 notes = [];
-console.log(longestNote());
+console.log(longestNote()); //Expected output: null
 notes = originalNotes;
 
 
@@ -51,11 +51,11 @@ function countByCategory() {
     return counts;
 }
 
-console.log(countByCategory());
+console.log(countByCategory()); //Expected output: {personal: 2, work: 1, study: 2}
 
 const savedNotes = notes;
 notes = [];
-console.log(countByCategory());
+console.log(countByCategory()); //Expected output: {}
 notes = savedNotes;
 
 function getSummary() {
@@ -65,13 +65,13 @@ function getSummary() {
     return `${notes.length} ${word}: ${counts.personal || 0} personal, ${counts.work || 0} work, ${counts.study || 0} study.`;
 }
 
-console.log(getSummary());
+console.log(getSummary()); //Expected output: 5 notes: 2 personal, 1 work, 2 study.
 
 const summaryNotes = notes;
 notes = [
     {id: 99, text: "Test note", category: "personal"}
 ];
-console.log(getSummary());
+console.log(getSummary()); //Expected output: 1 note: 1 personal, 0 work, 0 study.
 notes = summaryNotes;
 
 function isDuplicate(text) {
@@ -82,10 +82,10 @@ function isDuplicate(text) {
     });
 }
 
-console.log(isDuplicate("Buy milk and bread"));
-console.log(isDuplicate("buy milk and bread"));
-console.log(isDuplicate("  Buy Milk and Bread  "));
-console.log(isDuplicate("Walk the dog"));
+console.log(isDuplicate("Buy milk and bread")); //Expected output: true
+console.log(isDuplicate("buy milk and bread")); //Expected output: true
+console.log(isDuplicate("  Buy Milk and Bread  ")); //Expected output: true
+console.log(isDuplicate("Walk the dog")); //Expected output: false
 
 function addNote(text, category) {
     const cleanedText = text.trim();
@@ -106,16 +106,26 @@ function addNote(text, category) {
         return false;
     }
 
-    const newNote = { id: notes.length + 1,text: cleanedText,category: category};
+    const newNote = { 
+        id: notes.length + 1,
+        text: cleanedText,
+        category: category
+    };
     notes.push(newNote);
     
     console.log("Note added successfully!");
     return true;
 }
 
-console.log(addNote("Buy milk and bread", "personal"));
-console.log(addNote("", "work"));
-console.log(addNote("  BUY MILK AND BREAD", "personal"));
-console.log(addNote("Go for a walk", "other"));
-console.log(addNote("Learn JavaScript functions", "study"));
+console.log(addNote("Buy milk and bread", "personal")); //Note rejected because duplicate already exists.
+                                                        // false
+console.log(addNote("", "work")); //Note rejected because text must be between 1-200 characters.
+                                  // false
+console.log(addNote("  BUY MILK AND BREAD", "personal")); //Note rejected because duplicate already exists.
+                                                        // false
+console.log(addNote("Go for a walk", "other")); //Note rejected: "other" is not a valid category.
+                                                  // false
+console.log(addNote("Learn JavaScript functions", "study")); //Note added successfully!
+                                                            // true
 
+console.log("Day 3 practice complete!");
