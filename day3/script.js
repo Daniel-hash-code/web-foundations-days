@@ -106,8 +106,10 @@ function addNote(text, category) {
         return false;
     }
 
+    const maxId = Math.max(...notes.map((note) => note.id),0);
+
     const newNote = { 
-        id: notes.length + 1,
+        id: maxId + 1,
         text: cleanedText,
         category: category
     };
