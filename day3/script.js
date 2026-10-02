@@ -26,6 +26,20 @@ function longestNote() {
     return longest;
 }
 
+function countByCategory() {
+    const counts = {};
+
+    for (const note of notes) {
+        const category = note.category;
+        if (counts[category]) {
+            counts[category]++;
+        } else {
+            counts[category] = 1;
+        }
+    }
+    return counts;
+}
+
 console.log(searchNotes("javascript"));
 console.log(searchNotes("python"));
 
@@ -35,3 +49,10 @@ const originalNotes = notes;
 notes = [];
 console.log(longestNote());
 notes = originalNotes;
+
+console.log(countByCategory());
+
+const savedNotes = notes;
+notes = [];
+console.log(countByCategory());
+notes = savedNotes;
