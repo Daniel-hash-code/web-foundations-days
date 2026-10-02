@@ -12,5 +12,26 @@ function searchNotes(word) {
     });
 }
 
-console.log(searchNotes("javascript"));
+function longestNote() {
+    if (notes.length === 0) {
+        return null;
+    }
 
+    let longest = notes[0];
+    for (const note of notes) {
+        if (note.text.length > longest.text.length) {
+            longest = note;
+        }
+    }
+    return longest;
+}
+
+console.log(searchNotes("javascript"));
+console.log(searchNotes("python"));
+
+console.log(longestNote());
+
+const originalNotes = notes;
+notes = [];
+console.log(longestNote());
+notes = originalNotes;
