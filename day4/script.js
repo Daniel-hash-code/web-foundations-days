@@ -52,3 +52,28 @@ noteText.addEventListener("keydown", (event) => {
         clearNote();
     }
 });
+
+function applyTheme(theme) {
+    if (theme === "dark") {
+        document.body.classList.add("dark");
+        themeToggle.textContent = "Light mode";
+    }else {
+        document.body.classList.remove("dark");
+        themeToggle.textContent = "Dark mode";
+    }
+}
+
+const savedTheme = localStorage.getItem(THEME_KEY);
+applyTheme(savedTheme);
+
+themeToggle.addEventListener("click", () => {
+ const isDark = document.body.classList.toggle("dark");
+ 
+ if (isDark) {
+    themeToggle.textContent = "Light mode";
+    localStorage.setItem(THEME_KEY, "dark");
+ } else {
+    themeToggle.textContent = "Dark mode";
+    localStorage.setItem(THEME_KEY, "light");
+ }
+});
