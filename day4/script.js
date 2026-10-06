@@ -4,6 +4,9 @@ const wordCount = document.querySelector("#word-count");
 const themeToggle = document.querySelector("#theme-toggle");
 const clearBtn = document.querySelector("#clear-btn");
 
+const DRAFT_KEY = "quicknotes-draft";
+const THEME_KEY = "quicknotes-theme";
+
 function updateCounts() {
     const text = noteText.value;
     const characters = text.length;
@@ -23,4 +26,13 @@ function updateCounts() {
 
 noteText.addEventListener("input", () => {
     updateCounts();
+    localStorage.setItem(DRAFT_KEY, noteText.value);
 });
+
+const savedDraft = localStorage.getItem(DRAFT_KEY);
+
+if (savedDraft !== null) {
+    noteText.value = savedDraft;
+}
+
+updateCounts();
