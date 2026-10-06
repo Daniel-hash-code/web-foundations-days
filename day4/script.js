@@ -36,3 +36,19 @@ if (savedDraft !== null) {
 }
 
 updateCounts();
+
+function clearNote() {
+    noteText.value = "";
+    localStorage.removeItem(DRAFT_KEY);
+    updateCounts();
+}
+
+clearBtn.addEventListener("click", () => {
+    clearNote();
+});
+
+noteText.addEventListener("keydown", (event) => {
+    if(event.key === "Escape") {
+        clearNote();
+    }
+});
