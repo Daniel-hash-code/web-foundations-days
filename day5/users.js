@@ -52,6 +52,7 @@ async function loadUsers() {
         }
 
         users = await response.json();
+        filterInput.disabled = false;
 
         renderUsers(users);
         statusText.textContent = "Loaded " + users.length + " users.";
