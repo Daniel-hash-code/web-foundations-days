@@ -24,17 +24,15 @@ CREATE TABLE courses (
 -- A student can enrol on many courses, and a course can have many students.
 -- The composite UNIQUE constraint prevents duplicate enrolments.
 CREATE TABLE enrolments (
-    enrolment_id INTEGER PRIMARY KEY,
     student_id INTEGER NOT NULL,
     course_id INTEGER NOT NULL,
     grade TEXT CHECK (
         grade IN ('A', 'B', 'C', 'D', 'E', 'F') OR grade IS NULL
     ),
-    FOREIGN KEY (student_id) REFERENCES students(student_id)
-        ON DELETE CASCADE,
-    FOREIGN KEY (course_id) REFERENCES courses(course_id)
-        ON DELETE CASCADE,
-    UNIQUE (student_id, course_id)
+    PRIMARY KEY (student_id, course_id),
+
+    FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
 );
 
 -- Sample data: 
@@ -50,12 +48,12 @@ INSERT INTO courses (course_id, course_name, course_code) VALUES
     (2, 'Web Development', 'WEB102'),
     (3, 'Computer Networks', 'NET103');
 
-INSERT INTO enrolments (enrolment_id, student_id, course_id, grade) VALUES
-    (1, 1, 1, 'B'),
-    (2, 1, 2, 'A'),
-    (3, 2, 1, 'C'),
-    (4, 2, 3, 'B'),
-    (5, 3, 2, 'A');
+INSERT INTO enrolments (student_id, course_id, grade) VALUES
+    (1, 1, 'B'),
+    (1, 2, 'A'),
+    (2, 1, 'C'),
+    (2, 3, NULL),
+    (3, 2, 'A');
 
     -- David has no enrolments so the required LEFT JOIN query has a result.
 
@@ -92,14 +90,14 @@ ORDER BY s.full_name;
 -- QUERY 5: Update one enrolment's grade.
 UPDATE enrolments
 SET grade = 'A'
-WHERE enrolment_id = 1;
+WHERE student_id = 1 AND course_id = 2;
 
 -- Verify the grade update.
-SELECT e.enrolment_id, s.full_name, c.course_name, e.grade
+SELECT e.student_id, s.full_name, c.course_name, e.grade
 FROM enrolments AS e
 JOIN students AS s ON s.student_id = e.student_id
 JOIN courses AS c ON c.course_id = e.course_id
-WHERE e.enrolment_id = 1;
+WHERE e.student_id = 1 AND e.course_id = 2;
 
 -- Suggested index: useful for queries that look up enrolments by course.
 CREATE INDEX idx_enrolments_course_id ON enrolments(course_id);
