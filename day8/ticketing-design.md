@@ -258,3 +258,94 @@ COMMIT;
 The application must check the returned rows. If no row is returned, the seat was not available to hold. For a request containing multiple seats, the application should hold all requested seats in one transaction and roll back the entire transaction if any seat cannot be acquired.
 
 **Why this works:** The conditional update and database locking ensure that concurrent requests cannot both successfully claim the same currently available seat. A unique constraint and carefully enforced order/seat relationships provide additional protection. A read of the seat map followed by an unconditional update would not be safe
+
+This approach is unsafe if the application reads seat availability and later performs an unconditional update, because another request could claim the seat between those operations. The conditional update makes checking and claiming the seat a single database operation.
+
+For multi-seat requests, the application must acquire all requested seats within one transaction. If any seat cannot be held, it rolls back the transaction so the customer does not receive a partial reservation. Payment processing must also be idempotent so that retries do not create duplicate orders or charges.
+
+## 5. System Architecture
+
+### Architecture diagram
+
+```mermaid
+flowchart TD
+    U[Users and Browsers] --> DNS[DNS]
+    DNS --> CDN[CDN and Static Assets]
+    CDN --> WR[Virtual Waiting Room]
+    WR --> LB[Load Balancer]
+    LB --> A1[Application Server 1]
+    LB --> A2[Application Server 2]
+
+    A1 --> C[Redis Cache]
+    A2 --> C
+
+    A1 --> DB[(Primary Relational Database)]
+    A2 --> DB
+    DB --> RR[(Read Replica)]
+
+    A1 --> Q[Message Queue]
+    A2 --> Q
+    Q --> W[Background Worker]
+    W --> P[Payment Provider]
+    W --> DB
+    P --> W
+```
+
+### Component explanations
+
+1. **DNS:** Directs users to the TicketHub service.
+2. **CDN:** Delivers static files and reduces requests reaching the application servers.
+3. **Virtual waiting room:** Controls entry during popular ticket releases to reduce sudden traffic spikes and improve fairness.
+4. **Load balancer:** Distributes incoming requests across application server instances.
+5. **Application servers:** Handle authentication, event browsing, seat holds, order creation, and API requests.
+6. **Redis cache:** Stores frequently requested event information. The primary database remains authoritative for seat availability and purchases.
+7. **Primary relational database:** Stores users, events, seats, and orders. Transactions and constraints protect data integrity.
+8. **Read replica:** Handles suitable read-only requests, reducing load on the primary database. Purchase decisions must use authoritative data.
+9. **Message queue and worker:** Process background tasks, such as sending ticket confirmation messages, without delaying the main request.
+10. **Payment provider:** Processes payments. Idempotency keys help prevent duplicate processing when requests are retried.
+
+### Main request flows
+
+**Browsing:** Users request event details through the application. Cached data and read replicas handle suitable reads.
+
+**Holding seats:** The application executes conditional database updates within a transaction. If any requested seat is unavailable, the entire multi-seat transaction is rolled back.
+
+**Purchasing:** The application creates an order and initiates payment. After confirmed payment, it updates the order and seat statuses transactionally. Retries must be idempotent to avoid duplicate orders or charges.
+
+**Peak traffic:** The waiting room limits the rate of incoming purchase attempts. Multiple application servers, caching, and background processing help the system handle demand without relying on caching to prevent double-booking.
+
+## 6. Design Trade-offs
+
+### 1. Consistency versus performance
+
+**Decision:** Use the primary database for seat holds and purchase decisions, while using caches and read replicas for suitable browsing requests.
+
+**Benefit:** Purchase operations use authoritative data, reducing the risk of selling the same seat twice.
+
+**Trade-off:** The primary database can become a bottleneck during popular releases and needs careful capacity planning.
+
+### 2. Fairness versus speed
+
+**Decision:** Use a virtual waiting room to regulate access during high-demand sales.
+
+**Benefit:** It reduces sudden traffic spikes and helps manage the order in which customers enter the purchase flow.
+
+**Trade-off:** Customers may wait before buying tickets, and queue management adds operational complexity.
+
+### 3. Hold duration versus seat availability
+
+**Decision:** Set a limited seat-hold period, such as five minutes, and release expired holds.
+
+**Benefit:** Customers cannot reserve seats indefinitely without completing checkout.
+
+**Trade-off:** Short holds can inconvenience customers experiencing slow payment processing, while long holds reduce availability for others.
+
+### 4. Synchronous versus asynchronous processing
+
+**Decision:** Keep seat reservation and critical order changes transactional, but process non-essential tasks such as email confirmations through a message queue.
+
+**Benefit:** Customers do not have to wait for every background task to finish.
+
+**Trade-off:** Queued tasks can be delayed or retried, requiring monitoring, retry handling, and idempotent processing.
+
+The central principle is that caching and horizontal scaling improve performance, but database-level concurrency control protects ticket ownership. Atomic conditional updates, transactions, and appropriate constraints are essential to preventing double-booking.
