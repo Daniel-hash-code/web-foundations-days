@@ -32,6 +32,7 @@ CREATE TABLE enrolments (
     PRIMARY KEY (student_id, course_id),
 
     FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE,
+    
     FOREIGN KEY (course_id) REFERENCES courses(course_id) ON DELETE CASCADE
 );
 

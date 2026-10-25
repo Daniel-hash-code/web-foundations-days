@@ -21,3 +21,12 @@ I would add an index on `enrolments(course_id)` because the system often needs t
 ## SQL or NoSQL?
 
 I would choose a relational SQL database for this school system. Students, courses, and enrolments have clearly defined fields and relationships, and the system needs to prevent duplicate enrolments and maintain valid references using primary keys, foreign keys, and constraints. SQL also supports `JOIN`, `GROUP BY`, and `LEFT JOIN`, which make it straightforward to list courses for a student, list students on a course, count students per course, and find students who have no enrolments. A NoSQL database can be useful for flexible or document-oriented data, but the structured relationships and integrity rules in this assignment make SQL a suitable choice.
+
+## Foreign Key Deletion Policy
+
+The `enrolments` table uses two foreign keys with explicit deletion rules.
+
+- **Student deletion — `ON DELETE CASCADE`:** When a student is deleted, their related enrolment records are automatically deleted. This prevents orphaned enrolment records.
+- **Course deletion — `ON DELETE RESTRICT`:** A course cannot be deleted while enrolment records reference it. This helps protect academic records, including grades, from accidental deletion.
+
+These policies are intentional: student enrolments are cleaned up when a student is removed, while courses with existing enrolments are protected from deletion. The SQL statement `PRAGMA foreign_keys = ON;` enables foreign-key enforcement in SQLite for the current connection.
